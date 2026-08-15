@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VideoEdu | Catálogo educativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#">Video<span>Edu</span></a>
+    <nav class="nav-actions">
+      <span id="sessionLabel" class="session-label">Visitante</span>
+      <button id="btnRegister" class="btn btn-ghost">Registrarse</button>
+      <button id="btnLogin" class="btn btn-primary">Iniciar sesión</button>
+      <button id="btnLogout" class="btn btn-danger hidden">Cerrar sesión</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">PLATAFORMA EDUCATIVA</p>
+        <h1>Aprende con nuestro catálogo de videos</h1>
+        <p>Explora, busca y reproduce contenido educativo. Inicia sesión para dar Me Gusta y participar en los comentarios.</p>
+      </div>
+    </section>
+
+    <section class="toolbar container">
+      <label class="search-box">
+        <span>🔎</span>
+        <input id="searchInput" type="search" placeholder="Buscar por título o palabra clave..." autocomplete="off" />
+      </label>
+      <select id="categorySelect" aria-label="Filtrar por categoría">
+        <option value="">Todas las categorías</option>
+      </select>
+    </section>
+
+    <section class="container">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CATÁLOGO</p>
+          <h2>Videos disponibles</h2>
+        </div>
+        <span id="videoCount" class="badge">0 videos</span>
+      </div>
+
+      <div id="loading" class="status-card">Cargando videos...</div>
+      <div id="errorBox" class="status-card error hidden"></div>
+      <div id="videoGrid" class="video-grid"></div>
+      <div id="emptyState" class="status-card hidden">No se encontraron videos con esos filtros.</div>
+    </section>
+  </main>
+
+  <footer>
+    <p>VideoEdu · Desarrollo y Diseño Web</p>
+  </footer>
+
+  <!-- Modal de autenticación -->
+  <div id="authModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-close="auth"></div>
+    <div class="modal-card auth-card">
+      <button class="modal-close" data-close="auth" aria-label="Cerrar">×</button>
+      <div class="tabs">
+        <button id="tabLogin" class="tab active">Iniciar sesión</button>
+        <button id="tabRegister" class="tab">Registrarse</button>
+      </div>
+
+      <form id="loginForm" class="form-stack">
+        <h3>Bienvenido</h3>
+        <p class="muted">Usa tu carné o correo electrónico.</p>
+        <label>Usuario
+          <input id="loginUser" required placeholder="1890-20-11489 o correo@dominio.com" />
+        </label>
+        <label>Contraseña
+          <input id="loginPassword" required type="password" inputmode="numeric" placeholder="PIN numérico" />
+        </label>
+        <button class="btn btn-primary btn-block" type="submit">Ingresar</button>
+        <p id="loginMessage" class="form-message"></p>
+      </form>
+
+      <form id="registerForm" class="form-stack hidden">
+        <h3>Crear cuenta</h3>
+        <p class="muted">Completa los datos solicitados.</p>
+        <label>Carné
+          <input id="regCarnet" required placeholder="0000-00-00000" maxlength="13" />
+        </label>
+        <label>Nombre del estudiante
+          <input id="regName" required placeholder="JUAN PEREZ" />
+        </label>
+        <label>Correo
+          <input id="regEmail" required type="email" placeholder="usuario@correo.com" />
+        </label>
+        <label>Contraseña PIN
+          <input id="regPassword" required type="password" inputmode="numeric" placeholder="Solo números, sin espacios" />
+        </label>
+        <button class="btn btn-primary btn-block" type="submit">Registrar estudiante</button>
+        <p id="registerMessage" class="form-message"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de video -->
+  <div id="videoModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-close="video"></div>
+    <div class="modal-card video-modal-card">
+      <button class="modal-close" data-close="video" aria-label="Cerrar">×</button>
+      <div id="playerHost" class="player-host"></div>
+      <div class="video-detail-content">
+        <div class="video-title-row">
+          <div>
+            <span id="detailCategory" class="chip"></span>
+            <h2 id="detailTitle">Video</h2>
+          </div>
+          <button id="likeButton" class="btn btn-like">♡ Me Gusta <span id="likeCount"></span></button>
+        </div>
+        <p id="detailDescription" class="detail-description"></p>
+        <p id="detailDuration" class="muted"></p>
+
+        <hr />
+        <section class="comments-section">
+          <div class="comments-head">
+            <h3>Comentarios</h3>
+            <span id="commentsCount" class="badge">0</span>
+          </div>
+
+          <form id="commentForm" class="comment-form">
+            <textarea id="commentText" rows="3" maxlength="500" placeholder="Escribe un comentario..."></textarea>
+            <button class="btn btn-primary" type="submit">Publicar comentario</button>
+          </form>
+          <p id="interactionNotice" class="muted"></p>
+          <div id="commentsList" class="comments-list"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <template id="videoCardTemplate">
+    <article class="video-card">
+      <div class="poster-wrap">
+        <img class="poster" alt="Póster del video" />
+        <span class="duration-pill"></span>
+      </div>
+      <div class="video-card-body">
+        <span class="chip card-category"></span>
+        <h3 class="card-title"></h3>
+        <p class="card-description"></p>
+        <button class="btn btn-primary btn-block play-btn">▶ Reproducir</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
